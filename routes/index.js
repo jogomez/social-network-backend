@@ -13,6 +13,11 @@ const router = require("express").Router();
     Source: http://expressjs.com/en/5x/api.html#router
 */
 
+const apiRoutes = require("./api");
+router.use("/api", apiRoutes);
 
+router.use((req, res) => {
+    res.status(404).send("<h1>~~ Ooops! 404 Error ~~</h1>");
+});
 
 module.exports = router;
