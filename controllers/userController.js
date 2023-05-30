@@ -98,6 +98,41 @@ const userController = {
                 res.json(err);
         });
     },
+
+    /* add a friend */
+    addFriend({ params }, res) {
+        User.findOneAndUpdate(
+            { _id: params.userId }, // filter by Id 
+            { $addToSet: { friends: params.friendId } }, //update the '$addToSet' operator adds a value to an array unless it already exists.
+            { new: true, runValidators: true } //new = true -> returns the document after update was applied.
+        )
+        .then((dbUserData) => {
+            if (!dbUserData) {
+                res.status(404).json({ message: `User id ${params.id} not found` });
+                return;
+            }
+            res.json(dbUserData);
+        })
+        .catch((err) => res.json(err));
+    },
+
+    /* delete friend */ 
+    removeFriend({ params }, res) {
+        User.findOneAndUpdate(
+            { _id: params.userId },
+            { $pull: { friends: params.friendId } },
+            { new: true }
+        )
+        .then((dbUserData) => {
+            if (!dbUserData) {
+                res.status(404)
+                .json({ message: `User id ${params.id} not found` });
+                return;
+            }
+            res.json(dbUserData);
+        })
+        .catch((err) => res.json(err));
+    },
 };
 
 module.exports = userController;
