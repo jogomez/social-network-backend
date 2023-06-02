@@ -3,17 +3,29 @@ const { User } = require("../models");
 const userController = {
     /* controller to create a user */
     createUser({ body }, res) {
-        User.create(body)
-            .then((dbUserData) => res.json(dbUserData))
-            .catch((err) => {
-                console.log('err :>> ', err);                
-                res.sendStatus(400);     
-            });
+        /* Verify if the username or email is already registered */
+        User.find({ username: body.username, email: body.username })
+        .then((dbUserData) => {
+            if (dbUserData.username === body.username || dbUserData.email === body.username) {
+                return res.status(404)
+                .json({ message: `Username and/or email already exist in database` });
+            }
+            else{
+                /* create the user */
+                User.create(body)
+                    .then((dbUserData) => res.json(dbUserData))
+                    .catch((err) => {
+                        console.log('err :>> ', err);                
+                        res.sendStatus(400);     
+                    });
+            }
+        });
     },
 
     /* controller to get all users */
     getAllUsers(req, res) {
         User.find({})
+            .select("-__v")
             .then((dbUserData) => res.json(dbUserData))
             .catch((err) => {
                 console.log('err :>> ', err);
@@ -21,9 +33,9 @@ const userController = {
             });
     },
 
-    /* get one user by id */
+    /* controller to get one user by id */
     getUserById({ params }, res) {
-        // validate params.id before making the call
+        // validate user id before making the call
         if (params.id.length !== 24){
             res.status(404)
             .json({ message: `User id's lenght is not 24 characters`});
@@ -47,7 +59,7 @@ const userController = {
 
     /* update user by id */
     updateUser({ params, body }, res) {
-        // validate params.id before making the call
+        // validate user id before making the call
         if (params.id.length !== 24){
             res.status(404)
             .json({ message: `User id's lenght is not 24 characters`});
