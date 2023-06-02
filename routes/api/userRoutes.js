@@ -22,7 +22,7 @@ router.route("/")
 */
 router.route("/:id")
     .get(getUserById)
-    .post(updateUser)
+    .put(updateUser)
     .delete(deleteUser);
 
 /* 

@@ -1,12 +1,12 @@
-const { User } = require("../models");
+const { User, Thought } = require("../models");
 
 const userController = {
     /* controller to create a user */
     createUser({ body }, res) {
         /* Verify if the username or email is already registered */
-        User.find({ username: body.username, email: body.username })
+        User.find({ username: body.username, email: body.email })
         .then((dbUserData) => {
-            if (dbUserData.username === body.username || dbUserData.email === body.username) {
+            if (dbUserData.username === body.username || dbUserData.email === body.email) {
                 return res.status(404)
                 .json({ message: `Username and/or email already exist in database` });
             }
@@ -57,7 +57,7 @@ const userController = {
         });
     },
 
-    /* update user by id */
+    /* controller to update user by id */
     updateUser({ params, body }, res) {
         // validate user id before making the call
         if (params.id.length !== 24){
@@ -84,6 +84,7 @@ const userController = {
         });
     },
 
+
     /* delete user by id */
     deleteUser({ params }, res) {
         // validate params.id before making the call
@@ -102,7 +103,9 @@ const userController = {
             }
             else
             {
-                res.json({ message: `User id ${params.id} deleted` })
+                Thought.deleteMany({ _id: { $in: dbUserData.thoughts } });
+                res.json({ message: `User id ${params.id} deleted` });
+                return;
             }
         })
         .catch((err) => {
